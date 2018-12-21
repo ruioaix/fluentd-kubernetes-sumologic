@@ -163,6 +163,15 @@ module Fluent::Plugin
           sumo_metadata[:source] = sumo_metadata[:source] % k8s_metadata
         else
           sumo_metadata[:source] = annotations["sumologic.com/sourceName"] % k8s_metadata
+		  if sumo_metadata[:source].end_with? "/nsqlogs"
+			  if record["log"].start_with? ">1>"
+				  record["log"][0..2] = ""
+				  sumo_metadata[:source] += "/vlog"
+			  elsif record["log"].start_with? ">2>"
+				  record["log"][0..2] = ""
+				  sumo_metadata[:source] += "/LOGFILE"
+			  end
+          end
         end
 
         if annotations["sumologic.com/sourceCategory"].nil?
